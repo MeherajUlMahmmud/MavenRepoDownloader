@@ -1,29 +1,37 @@
+import requests
 import os
+import logging
 from flask import Flask, request, send_from_directory
+
+
+logging.basicConfig(
+    filename="record.log", level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(name)s %(lineno)d : %(message)s",
+)
 
 app = Flask(__name__)
 
 
 @app.route('/')
-def hello_world():
-    return 'Hello, World!'
+def index():
+    return 'Local Maven Repository'
 
 
 @app.route('/local-repo/<path:filepath>', methods=["GET"])
-def serve_file(filepath):
-    # print client ip address
-    print(f'IP ADDRESS: {request.remote_addr}')
-    print(f'FILEPATH: {filepath}')
+def serve_local_file(filepath):
+    logging.info(f'IP ADDRESS: {request.remote_addr}')
+    logging.info(f'FILEPATH: {filepath}')
 
     maven_repo_path = os.path.join(os.getcwd(), 'maven-repo')
+    print(f'maven_repo_path: {maven_repo_path}')
 
     try:
         # Try to serve the file
+        print(os.path.join(maven_repo_path, filepath))
         return send_from_directory(maven_repo_path, filepath)
     except Exception as e:
-        print("FAILED TO SERVE FILE")
+        logging.error('ERROR SERVING FILE FROM LOCAL REPO')
         return "File not found", 404
-
 
 # @app.route('/local-repo/<path:filepath>', methods=["GET"])
 # def serve_file(filepath):
@@ -76,6 +84,7 @@ def serve_file(filepath):
 #         except Exception as e:
 #             print(f'Error serving file: {e}')
 #             return "File not found", 404
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050, debug=True)
