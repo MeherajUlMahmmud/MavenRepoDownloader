@@ -2,6 +2,8 @@
 
 The Maven Repository Downloader is a Flask REST API to automate retrieval of artifacts from Maven repositories.
 
+This server is intended to be used as a proxy server for oragnaizations that do not want to expose their development environment to the internet. It can also be used to cache artifacts from Maven repositories to reduce the load on the Maven repository servers.
+
 ## Features
 
 -   Dynamic handling of Maven repository URLs.
