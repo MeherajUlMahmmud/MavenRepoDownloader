@@ -10,6 +10,10 @@
 </head>
 
 <body>
+	<h1>
+		{{ url_path }}
+	</h1>
+	<hr />
 	<ol>
 		{% for folder in folders %}
 		<li><a href="{{ url_for('folder', folderpath=url_path+'/'+folder) }}">{{ folder }}/</a></li>
