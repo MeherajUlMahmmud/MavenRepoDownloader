@@ -1,16 +1,20 @@
+"""
+@Project: Local Maven Repository Server for Java
+@Description: This server will serve the maven repository locally. If the file is not found locally, it will download the file from remote repository and serve it.
+
+@Author:  Meharaj - Ul- Mahmmud
+@Date: 15-Nov-2023
+
+"""
+
 import requests
 import os
 import logging
-from flask import Flask, request, send_from_directory
+from flask import Flask, render_template, request, send_from_directory
 
-
-# logging.basicConfig(
-#     filename="record.log", level=logging.DEBUG,
-#     format="%(asctime)s %(levelname)s %(name)s %(lineno)d : %(message)s",
-# )
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    filename="record.log", level=logging.DEBUG,
     format="%(asctime)s %(levelname)s %(name)s %(lineno)d : %(message)s",
 )
 
@@ -19,7 +23,37 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return 'Local Maven Repository'
+    maven_repo_path = os.path.join(os.getcwd(), 'maven-repo')
+    folders = os.listdir(maven_repo_path)
+    return render_template('index.html', folders=folders, parent_content=[], url_path='/')
+
+
+@app.route('/<path:folderpath>')
+def folder(folderpath):
+    maven_repo_path = os.path.join(os.getcwd(), 'maven-repo')
+    folder_path = os.path.join(maven_repo_path, folderpath)
+    url_path = os.path.join('/', folderpath)
+
+    # if folder_path is a file, serve the file
+    if os.path.isfile(folder_path):
+        return send_from_directory(maven_repo_path, folderpath)
+
+    # if folder_path is a folder, list the content of the folder
+    parent_folder = os.path.dirname(folderpath)
+    parent_folder_path = os.path.join(maven_repo_path, parent_folder)
+    parent_content = os.listdir(parent_folder_path)
+
+    # Get the list of folders and files in the folder_path
+    item_list = os.listdir(folder_path)
+    folders = []
+    files = []
+    for item in item_list:
+        item_path = os.path.join(folder_path, item)
+        if os.path.isdir(item_path):
+            folders.append(item)
+        else:
+            files.append(item)
+    return render_template('index.html', folders=folders, files=files, parent_content=parent_content, url_path=url_path)
 
 
 @app.route('/local-repo/<path:filepath>', methods=["GET"])
@@ -30,31 +64,28 @@ def serve_local_file(filepath):
     maven_repo_path = os.path.join(os.getcwd(), 'maven-repo')
     local_file_path = os.path.join(maven_repo_path, filepath)
 
-    # check if the file exists locally
     if os.path.isfile(local_file_path):
-        logging.info(f'Serving file from local repository: {filepath}')
+        logging.info('FILE FOUND IN LOCAL REPOSITORY')
+        logging.info(f'SERVING FILE FROM LOCAL REPOSITORY: {filepath}')
         return send_from_directory(maven_repo_path, filepath)
 
     logging.warning(
-        f'File not found locally. Attempting to download: {filepath}')
+        f'FILE NOT FORUND LOCALLY. ATTEMPTING TO DOWNLOAD: {filepath}')
 
-    # If the file is not found locally, try to download it from a remote repository
-    # Replace with your remote repository URL
     remote_repository_url = 'https://repo1.maven.org/maven2'
     remote_file_url = f'{remote_repository_url}/{filepath}'
 
     response = requests.get(remote_file_url)
 
     if response.status_code == 200:
-        # Save the downloaded file to the local repository
         os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
         with open(local_file_path, 'wb') as local_file:
             local_file.write(response.content)
 
-        logging.info(f'Downloaded and served: {filepath}')
+        logging.info(f'FILE DOWNLOADED AND SERVING: {filepath}')
         return send_from_directory(maven_repo_path, filepath)
     else:
-        logging.error(f'Error downloading file: {response.status_code}')
+        logging.error(f'ERROR DOWNLOADING FILE: {response.status_code}')
         return "File not found", 404
 
 
