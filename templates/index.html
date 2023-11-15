@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>
+		{{ url_path }}
+	</title>
+</head>
+
+<body>
+	<ol>
+		{% for folder in folders %}
+		<li><a href="{{ url_for('folder', folderpath=url_path+'/'+folder) }}">{{ folder }}/</a></li>
+		{% endfor %}
+	</ol>
+
+	<ol>
+		{% for file in files %}
+		<li>
+			<a href="{{ url_for('folder', folderpath=url_path+'/'+file) }}">
+				{{ file }}
+			</a>
+		</li>
+		{% endfor %}
+	</ol>
+
+</body>
+
+</html>
