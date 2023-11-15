@@ -28,20 +28,10 @@ python app.py
 
 ## API Reference
 
-#### Get a artifact from local repository (will not download from Maven if not found in local repository)
-
-```http
-  GET /local-repo/${filepath}
-```
-
-| Parameter  | Type     | Description                                                |
-| :--------- | :------- | :--------------------------------------------------------- |
-| `filepath` | `string` | **Required**. Path to the artifact in the Maven repository |
-
 #### Get a artifact from local repository (will download from Maven if not found in local repository)
 
 ```http
-  GET /remote-repo/${filepath}
+  GET /local-repo/${filepath}
 ```
 
 | Parameter  | Type     | Description                                                |
