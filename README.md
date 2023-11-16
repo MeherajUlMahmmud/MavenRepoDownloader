@@ -9,6 +9,7 @@ This server is intended to be used as a proxy server for oragnaizations that do 
 -   Dynamic handling of Maven repository URLs.
 -   Automatic creation of a Maven-like folder structure.
 -   Efficient downloading of artifacts from provided URLs or via API calls.
+-   Web UI to view and download artifacts from the local repository.
 
 ## Installation
 
@@ -43,3 +44,7 @@ python app.py
 ## Authors
 
 -   [@MeherajUlMahmmud](https://github.com/MeherajUlMahmmud)
+
+## Screenshots
+
+![App Screenshot](./screenshots/LocalMavenRepository.png)
