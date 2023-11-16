@@ -44,16 +44,19 @@ def folder(folderpath):
     parent_content = os.listdir(parent_folder_path)
 
     # Get the list of folders and files in the folder_path
-    item_list = os.listdir(folder_path)
-    folders = []
-    files = []
-    for item in item_list:
-        item_path = os.path.join(folder_path, item)
-        if os.path.isdir(item_path):
-            folders.append(item)
-        else:
-            files.append(item)
-    return render_template('index.html', folders=folders, files=files, parent_content=parent_content, url_path=url_path)
+    try:
+        item_list = os.listdir(folder_path)
+        folders = []
+        files = []
+        for item in item_list:
+            item_path = os.path.join(folder_path, item)
+            if os.path.isdir(item_path):
+                folders.append(item)
+            else:
+                files.append(item)
+        return render_template('index.html', folders=folders, files=files, parent_content=parent_content, url_path=url_path)
+    except FileNotFoundError:
+        return "Folder not found", 404
 
 
 @app.route('/local-repo/<path:filepath>', methods=["GET"])
