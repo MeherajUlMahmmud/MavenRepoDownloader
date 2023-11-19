@@ -20,6 +20,11 @@ logging.basicConfig(
 
 app = Flask(__name__)
 
+remote_repository_urls = [
+    'https://repo1.maven.org/maven2',
+    'https://repo.maven.apache.org/maven2',
+]
+
 
 @app.route('/')
 def index():
@@ -75,21 +80,26 @@ def serve_local_file(filepath):
     logging.warning(
         f'FILE NOT FORUND LOCALLY. ATTEMPTING TO DOWNLOAD: {filepath}')
 
-    remote_repository_url = 'https://repo1.maven.org/maven2'
-    remote_file_url = f'{remote_repository_url}/{filepath}'
+    for remote_repository_url in remote_repository_urls:
+        logging.info(
+            f'ATTEMPTING TO DOWNLOAD FROM REMOTE REPOSITORY: {remote_repository_url}')
+        remote_file_url = f'{remote_repository_url}/{filepath}'
+        response = requests.get(remote_file_url)
 
-    response = requests.get(remote_file_url)
+        if response.status_code == 200:
+            logging.info(
+                f'FILE DOWNLOADED FROM REMOTE REPOSITORY: {remote_file_url}')
+            os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
+            with open(local_file_path, 'wb') as local_file:
+                local_file.write(response.content)
 
-    if response.status_code == 200:
-        os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
-        with open(local_file_path, 'wb') as local_file:
-            local_file.write(response.content)
-
-        logging.info(f'FILE DOWNLOADED AND SERVING: {filepath}')
-        return send_from_directory(maven_repo_path, filepath)
-    else:
-        logging.error(f'ERROR DOWNLOADING FILE: {response.status_code}')
-        return "File not found", 404
+            logging.info(f'FILE DOWNLOADED AND SERVING: {filepath}')
+            return send_from_directory(maven_repo_path, filepath)
+        else:
+            logging.error(
+                f'ERROR DOWNLOADING FILE FROM REMOTE REPOSITORY: {remote_file_url}')
+            logging.error(f'ERROR DOWNLOADING FILE: {response.status_code}')
+            continue
 
 
 if __name__ == '__main__':
