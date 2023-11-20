@@ -35,12 +35,22 @@ def index():
 
 @app.route('/<path:folderpath>')
 def folder(folderpath):
+    # folderpath = junit/junit/4.12/junit-4.12.pom
+
     maven_repo_path = os.path.join(os.getcwd(), 'maven-repo')
+    # maven_repo_path = current working directory + maven-repo
+
     folder_path = os.path.join(maven_repo_path, folderpath)
+    # folderpath = https://repo1.maven.org/maven2 + junit/junit/4.12/junit-4.12.pom
+
     url_path = os.path.join('/', folderpath)
+    # url_path = / + junit/junit/4.12/junit-4.12.pom
 
     # if folder_path is a file, serve the file
     if os.path.isfile(folder_path):
+        """
+        Folder path is a file, serve the file
+        """
         return send_from_directory(maven_repo_path, folderpath)
 
     # if folder_path is a folder, list the content of the folder
@@ -70,7 +80,10 @@ def serve_local_file(filepath):
     logging.info(f'FILEPATH: {filepath}')
 
     maven_repo_path = os.path.join(os.getcwd(), 'maven-repo')
+    # maven_repo_path = current working directory + maven-repo
+
     local_file_path = os.path.join(maven_repo_path, filepath)
+    # local_file_path = maven_repo_path + junit/junit/4.12/junit-4.12.pom
 
     if os.path.isfile(local_file_path):
         logging.info('FILE FOUND IN LOCAL REPOSITORY')
