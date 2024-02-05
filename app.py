@@ -9,16 +9,14 @@
 
 import requests
 import os
-import logging
 from flask import Flask, render_template, request, send_from_directory
 
-
-logging.basicConfig(
-    filename="record.log", level=logging.DEBUG,
-    format="%(asctime)s %(levelname)s %(name)s %(lineno)d : %(message)s",
-)
+from logger import setup_logger
 
 app = Flask(__name__)
+
+# Set up logger
+logger = setup_logger()
 
 remote_repository_urls = [
     'https://repo1.maven.org/maven2',
@@ -76,8 +74,8 @@ def folder(folderpath):
 
 @app.route('/local-repo/<path:filepath>', methods=["GET"])
 def serve_local_file(filepath):
-    logging.info(f'IP ADDRESS: {request.remote_addr}')
-    logging.info(f'FILEPATH: {filepath}')
+    logger.info(f'IP ADDRESS: {request.remote_addr}')
+    logger.info(f'FILEPATH: {filepath}')
 
     maven_repo_path = os.path.join(os.getcwd(), 'maven-repo')
     # maven_repo_path = current working directory + maven-repo
@@ -86,32 +84,32 @@ def serve_local_file(filepath):
     # local_file_path = maven_repo_path + junit/junit/4.12/junit-4.12.pom
 
     if os.path.isfile(local_file_path):
-        logging.info('FILE FOUND IN LOCAL REPOSITORY')
-        logging.info(f'SERVING FILE FROM LOCAL REPOSITORY: {filepath}')
+        logger.info('FILE FOUND IN LOCAL REPOSITORY')
+        logger.info(f'SERVING FILE FROM LOCAL REPOSITORY: {filepath}')
         return send_from_directory(maven_repo_path, filepath)
 
-    logging.warning(
+    logger.warning(
         f'FILE NOT FORUND LOCALLY. ATTEMPTING TO DOWNLOAD: {filepath}')
 
     for remote_repository_url in remote_repository_urls:
-        logging.info(
+        logger.info(
             f'ATTEMPTING TO DOWNLOAD FROM REMOTE REPOSITORY: {remote_repository_url}')
         remote_file_url = f'{remote_repository_url}/{filepath}'
         response = requests.get(remote_file_url)
 
         if response.status_code == 200:
-            logging.info(
+            logger.info(
                 f'FILE DOWNLOADED FROM REMOTE REPOSITORY: {remote_file_url}')
             os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
             with open(local_file_path, 'wb') as local_file:
                 local_file.write(response.content)
 
-            logging.info(f'FILE DOWNLOADED AND SERVING: {filepath}')
+            logger.info(f'FILE DOWNLOADED AND SERVING: {filepath}')
             return send_from_directory(maven_repo_path, filepath)
         else:
-            logging.error(
+            logger.error(
                 f'ERROR DOWNLOADING FILE FROM REMOTE REPOSITORY: {remote_file_url}')
-            logging.error(f'ERROR DOWNLOADING FILE: {response.status_code}')
+            logger.error(f'ERROR DOWNLOADING FILE: {response.status_code}')
             continue
 
 
