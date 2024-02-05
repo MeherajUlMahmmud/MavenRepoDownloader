@@ -16,14 +16,14 @@
 	<hr />
 	<ol>
 		{% for folder in folders %}
-		<li><a href="{{ url_for('folder', folderpath=url_path+'/'+folder) }}">{{ folder }}/</a></li>
+		<li><a href="{{ url_for('folder', folderpath=url_path + '/' + folder) }}">{{ folder }}/</a></li>
 		{% endfor %}
 	</ol>
 
 	<ol>
 		{% for file in files %}
 		<li>
-			<a href="{{ url_for('folder', folderpath=url_path+'/'+file) }}">
+			<a href="{{ url_for('folder', folderpath=url_path + '/' + file) }}">
 				{{ file }}
 			</a>
 		</li>
